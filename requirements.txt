@@ -1,11 +1,1 @@
-click==6.7
-Flask==0.12.1
-itsdangerous==0.24
-Jinja2==2.9.5
-MarkupSafe==1.0
-olefile==0.44
-Werkzeug==0.12.1
-pillow==4.0.0
-python-dateutil==2.6.0
-six==1.10.0
-functools==0.5
+Flask<1

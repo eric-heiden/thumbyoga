@@ -1,9 +1,9 @@
 """
-This script runs the ThumbYoga application using a development server.
+This script runs the FingerTango application using a development server.
 """
 
 from os import environ
-from ThumbYoga import app
+from FingerTango import app
 
 if __name__ == '__main__':
     HOST = environ.get('SERVER_HOST', 'localhost')
