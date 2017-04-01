@@ -1,1 +1,6 @@
 Flask<1
+Pillow
+dateutil
+requests
+python-resize-image
+opencv-python

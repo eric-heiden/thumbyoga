@@ -1,0 +1,9 @@
+C:\Users\eric-\documents\visual studio 2015\Projects\FingerTango\FingerTango\bin\Microsoft.PythonTools.WebRole.dll
+C:\Users\eric-\documents\visual studio 2015\Projects\FingerTango\FingerTango\bin\AzureSetup.cfg
+C:\Users\eric-\documents\visual studio 2015\Projects\FingerTango\FingerTango\bin\Microsoft.PythonTools.AzureSetup.exe
+C:\Users\eric-\documents\visual studio 2015\Projects\FingerTango\FingerTango\bin\Microsoft.PythonTools.AzureSetup.exe.config
+C:\Users\eric-\documents\visual studio 2015\Projects\FingerTango\FingerTango\bin\wfastcgi.py
+C:\Users\eric-\documents\visual studio 2015\Projects\FingerTango\FingerTango\obj\Release\deployment-updated-pyvenv.cfg
+C:\Users\eric-\documents\visual studio 2015\Projects\FingerTango\FingerTango\ptvs_virtualenv_proxy.py
+C:\Users\eric-\documents\visual studio 2015\Projects\FingerTango\FingerTango\obj\Release\web.config
+C:\Users\eric-\documents\visual studio 2015\Projects\FingerTango\FingerTango\obj\Release\web.debug.config

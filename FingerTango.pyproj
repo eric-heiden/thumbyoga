@@ -30,9 +30,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="FingerTango\app.py" />
     <Compile Include="runserver.py" />
     <Compile Include="FingerTango\__init__.py" />
-    <Compile Include="FingerTango\views.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="FingerTango\" />
