@@ -1,9 +1,9 @@
 """
-This script runs the FlaskWebProject1 application using a development server.
+This script runs the ThumbYoga application using a development server.
 """
 
 from os import environ
-from backend import app
+from ThumbYoga import app
 
 if __name__ == '__main__':
     HOST = environ.get('SERVER_HOST', 'localhost')

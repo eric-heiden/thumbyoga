@@ -1,0 +1,7 @@
+PIL/_imaging.pyd
+PIL/_imagingcms.pyd
+PIL/_imagingft.pyd
+PIL/_imagingmath.pyd
+PIL/_imagingmorph.pyd
+PIL/_imagingtk.pyd
+PIL/_webp.pyd
