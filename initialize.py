@@ -17,6 +17,17 @@ client = MongoClient('mongodb://thumbyoga:V2QhIdJ7YpBvSxYuKsw0xCWkKoVoQFL55OAXt6
 db = client.thumbyoga
 
 db.Bucket.delete_many({})
-db.Image.delete_many({})
+# db.Image.delete_many({})
 
 db.Bucket.insert_one({'lastBucketId': 4, 'lastTimestamp': datetime.now()})
+
+buck = []
+# buck.append( None )
+buck.append( ClarifaiApp("V9eiZZRUExkv5fRgno2DxvvG5fJfz3ICM-zuLrhR", "kKind6PH-zYg6FIKOtuD_IK-kFJKjmsgK9hFkavy") )
+buck.append( ClarifaiApp("8Ql2EnIC5dgx02HkORIlRlAseAASuwiuHRrty50v", "_DiEG9gEGmP7luHcitUOQpJRS-fvxlfLXbZFYiIw") )
+buck.append( ClarifaiApp("u7pOW9u4HRUoEhTqYhw6D6Z_he45FPSiGV8odDIv", "2BU18_hN2AW1nPlOdHeH6f3aDmranIMWJ1pmW4AH") )
+buck.append( ClarifaiApp("diDr3Nv2Fa-EhbBROYbg8Ic8iyUVCZ4wL98tKutP", "TVHhYtjTmQGWnXLzQS6xB62bi1Me59muQnK1aBt4") )
+buck.append( ClarifaiApp("DRLD8ieb2xiJvhPYbc9cPBGpFq3XBKbXfc6aDhow", "mri66cHqJLZHk5XVF4JyUnRPDaF5Gy7qUmpe6EEf") )
+
+for b in buck:
+	b.deleteAll()
