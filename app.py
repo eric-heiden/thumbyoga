@@ -31,11 +31,20 @@ buck.append(ClarifaiApp("diDr3Nv2Fa-EhbBROYbg8Ic8iyUVCZ4wL98tKutP", "TVHhYtjTmQG
 buck.append(ClarifaiApp("DRLD8ieb2xiJvhPYbc9cPBGpFq3XBKbXfc6aDhow", "mri66cHqJLZHk5XVF4JyUnRPDaF5Gy7qUmpe6EEf"))
 
 buckId = 4
-
+bucket = db.Bucket.find_one()
 
 # Circular buffer
 def increment(lastBucketId):
     print("Incrementing bucket id %i" % lastBucketId)
+    db.Bucket.update(
+        {
+            '_id': bucket['_id']
+        },
+        {
+            '$set': {'lastBucketId': (lastBucketId+1) % 5, 'lastTimestamp': datetime.now()}
+        }
+    )
+    # db.Bucket.save()
     return (lastBucketId+1) % 5
     # if(lastBucketId == 5):
     #     return 1
@@ -43,12 +52,14 @@ def increment(lastBucketId):
     #     return lastBucketId+1
 
 
-def getNextBucket(lastBucketId, lastTimestamp, imgTimestamp):
+def getNextBucket(lastBucketId, lastTimestamp):
     global buckId
 
     buckId = lastBucketId
 
-    if (imgTimestamp - lastTimestamp).total_seconds() > 20:
+    print("Time delta: %.3f" % (datetime.now() - lastTimestamp).total_seconds())
+
+    if (datetime.now() - lastTimestamp).total_seconds() > 20:
         buckId = increment(lastBucketId)
 
     return buckId
@@ -143,7 +154,7 @@ def upload():
 
         # update buckets
         bucket = db.Bucket.find_one()
-        buckId = getNextBucket(bucket['lastBucketId'], bucket['lastTimestamp'], dt)
+        buckId = getNextBucket(bucket['lastBucketId'], bucket['lastTimestamp'])
 
         if buckId != bucket['lastBucketId']:
             buck[ buckId ].inputs.delete_all()
@@ -152,9 +163,10 @@ def upload():
                     '_id': bucket['_id']
                 },
                 {
-                    '$set': {'lastBucketId': buckId, 'lastTimestamp': dt}
+                    '$set': {'lastBucketId': buckId, 'lastTimestamp': datetime.now()}
                 }
             )
+            # db.Bucket.save()
 
         current_img_url = None
 
@@ -169,7 +181,7 @@ def upload():
             with open(target_filename, 'rb') as f:
                 data = f.read()
                 b64data = base64.b64encode(data)
-                image_id = str(db.Image.count() + 1)
+                # image_id = str(db.Image.count() + 1)
                 image = buck[ buckId ].inputs.create_image_from_base64(b64data)
                 current_img_url = image.url
         else:
