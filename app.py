@@ -10,6 +10,10 @@ from flask import Flask, render_template, request, redirect, url_for, send_from_
 from werkzeug import secure_filename
 from clarifai.rest import ClarifaiApp
 
+from helper import processRequest
+from generate_tags import generate_tags
+from generate_quotes import generate_quotes
+
 
 _url = 'https://westus.api.cognitive.microsoft.com/vision/v1.0/generateThumbnail'
 _key = 'afb83eda55b94d7dbdf3a4c6d23bf3df'
@@ -20,61 +24,13 @@ db = client.thumbyoga
 # select buckets as per timestamp
 buck = []
 # buck.append( None )
-buck.append( ClarifaiApp("V9eiZZRUExkv5fRgno2DxvvG5fJfz3ICM-zuLrhR", "kKind6PH-zYg6FIKOtuD_IK-kFJKjmsgK9hFkavy") )
-buck.append( ClarifaiApp("8Ql2EnIC5dgx02HkORIlRlAseAASuwiuHRrty50v", "_DiEG9gEGmP7luHcitUOQpJRS-fvxlfLXbZFYiIw") )
-buck.append( ClarifaiApp("u7pOW9u4HRUoEhTqYhw6D6Z_he45FPSiGV8odDIv", "2BU18_hN2AW1nPlOdHeH6f3aDmranIMWJ1pmW4AH") )
-buck.append( ClarifaiApp("diDr3Nv2Fa-EhbBROYbg8Ic8iyUVCZ4wL98tKutP", "TVHhYtjTmQGWnXLzQS6xB62bi1Me59muQnK1aBt4") )
-buck.append( ClarifaiApp("DRLD8ieb2xiJvhPYbc9cPBGpFq3XBKbXfc6aDhow", "mri66cHqJLZHk5XVF4JyUnRPDaF5Gy7qUmpe6EEf") )
+buck.append(ClarifaiApp("V9eiZZRUExkv5fRgno2DxvvG5fJfz3ICM-zuLrhR", "kKind6PH-zYg6FIKOtuD_IK-kFJKjmsgK9hFkavy"))
+buck.append(ClarifaiApp("8Ql2EnIC5dgx02HkORIlRlAseAASuwiuHRrty50v", "_DiEG9gEGmP7luHcitUOQpJRS-fvxlfLXbZFYiIw"))
+buck.append(ClarifaiApp("u7pOW9u4HRUoEhTqYhw6D6Z_he45FPSiGV8odDIv", "2BU18_hN2AW1nPlOdHeH6f3aDmranIMWJ1pmW4AH"))
+buck.append(ClarifaiApp("diDr3Nv2Fa-EhbBROYbg8Ic8iyUVCZ4wL98tKutP", "TVHhYtjTmQGWnXLzQS6xB62bi1Me59muQnK1aBt4"))
+buck.append(ClarifaiApp("DRLD8ieb2xiJvhPYbc9cPBGpFq3XBKbXfc6aDhow", "mri66cHqJLZHk5XVF4JyUnRPDaF5Gy7qUmpe6EEf"))
 
 buckId = 4
-
-def processRequest( jsonData, data, headers, params ):
-    """
-    Helper function to process the request to Project Oxford
-
-    Parameters:
-    jsonData: Used when processing images from its URL. See API Documentation
-    data: Used when processing image read from disk. See API Documentation
-    headers: Used to pass the key information and the data type request
-    """
-
-    retries = 0
-    result = None
-
-    url = 'https://westus.api.cognitive.microsoft.com/vision/v1.0/generateThumbnail'
-
-    while True:
-
-        response = requests.request( 'post', url, json = jsonData, data = data, headers = headers, params = params )
-
-        if response.status_code == 429: 
-
-            print( "Message: %s" % ( response.json()['error']['message'] ) )
-
-            if retries <= _maxNumRetries: 
-                time.sleep(1) 
-                retries += 1
-                continue
-            else: 
-                print( 'Error: failed after retrying!' )
-                break
-
-        elif response.status_code == 200 or response.status_code == 201:
-
-            if 'content-length' in response.headers and int(response.headers['content-length']) == 0: 
-                result = None 
-            elif 'content-type' in response.headers and isinstance(response.headers['content-type'], str): 
-                if 'application/json' in response.headers['content-type'].lower(): 
-                    result = response.json() if response.content else None 
-                elif 'image' in response.headers['content-type'].lower(): 
-                    result = response.content
-        else:
-            print( "Error code: %d" % ( response.status_code ) )
-            # print( "Message: %s" % ( response.json() ) )
-
-        break
-        
-    return result
 
 
 # Circular buffer
@@ -92,7 +48,7 @@ def getNextBucket(lastBucketId, lastTimestamp, imgTimestamp):
 
     buckId = lastBucketId
 
-    if (lastTimestamp - imgTimestamp).total_seconds() > 2:
+    if (imgTimestamp - lastTimestamp).total_seconds() > 20:
         buckId = increment(lastBucketId)
 
     return buckId
@@ -183,23 +139,24 @@ def upload():
         headers['Content-Type'] = 'application/octet-stream'
 
         print("Generating smart thumbnail...")
-        result = processRequest(None, data, headers, params)
+        result = processRequest(_url, None, data, headers, params)
 
         # update buckets
         bucket = db.Bucket.find_one()
         buckId = getNextBucket(bucket['lastBucketId'], bucket['lastTimestamp'], dt)
 
         if buckId != bucket['lastBucketId']:
-            buck[ buckId ].deleteAll()
+            buck[ buckId ].inputs.delete_all()
             db.Bucket.update(
                 {
-                    _id: bucket._id
+                    '_id': bucket['_id']
                 },
                 {
                     '$set': {'lastBucketId': buckId, 'lastTimestamp': dt}
                 }
             )
 
+        current_img_url = None
 
         b64data = None
         if result is not None:
@@ -214,6 +171,7 @@ def upload():
                 b64data = base64.b64encode(data)
                 image_id = str(db.Image.count() + 1)
                 image = buck[ buckId ].inputs.create_image_from_base64(b64data)
+                current_img_url = image.url
         else:
             print('Error while computing smart thumbnails.')
 
@@ -236,7 +194,15 @@ def upload():
             #     if count == 3:
             #         break
 
-        return jsonify({ "bucket_results": bucket_results })
+        print(current_img_url)
+        tags = generate_tags(current_img_url)
+        print(tags)
+        quotes = generate_quotes(tags)
+        print(quotes)
+        return jsonify({
+            "bucket_results": bucket_results,
+            "quotes": quotes[:min(5, len(quotes))]
+        })
 
         # Redirect the user to the uploaded_file route, which
         # will basicaly show on the browser the uploaded file

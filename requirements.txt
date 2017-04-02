@@ -1,9 +1,12 @@
 Flask<1
 Pillow
 python-dateutil
+beautifulsoup4
 requests
+html5lib
 numpy
 python-resize-image
 opencv-python
 pymongo
 clarifai
+html5lib
