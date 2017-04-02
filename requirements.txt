@@ -6,3 +6,4 @@ numpy
 python-resize-image
 opencv-python
 pymongo
+clarifai
