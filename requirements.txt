@@ -1,0 +1,7 @@
+Flask<1
+Pillow
+python-dateutil
+requests
+numpy
+python-resize-image
+opencv-python
