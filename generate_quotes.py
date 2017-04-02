@@ -26,5 +26,5 @@ def generate_quotes(tags):
 
         return arrayQuotes if len(arrayQuotes) > 0 else LIFE_QUOTES
     except:
+        print("Resorting to life quotes :(")
         return LIFE_QUOTES
-        

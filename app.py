@@ -59,7 +59,7 @@ def getNextBucket(lastBucketId, lastTimestamp):
 
     print("Time delta: %.3f" % (datetime.now() - lastTimestamp).total_seconds())
 
-    if (datetime.now() - lastTimestamp).total_seconds() > 20:
+    if (datetime.now() - lastTimestamp).total_seconds() > 30:
         buckId = increment(lastBucketId)
 
     return buckId
@@ -158,15 +158,14 @@ def upload():
 
         if buckId != bucket['lastBucketId']:
             buck[ buckId ].inputs.delete_all()
-            db.Bucket.update(
-                {
-                    '_id': bucket['_id']
-                },
-                {
-                    '$set': {'lastBucketId': buckId, 'lastTimestamp': datetime.now()}
-                }
-            )
-            # db.Bucket.save()
+            # db.Bucket.update(
+            #     {
+            #         '_id': bucket['_id']
+            #     },
+            #     {
+            #         '$set': {'lastBucketId': buckId, 'lastTimestamp': datetime.now()}
+            #     }
+            # )
 
         current_img_url = None
 
@@ -193,6 +192,10 @@ def upload():
         bucket_results = []
         for i in range(5):
             result = buck[i].inputs.search_by_image(base64bytes=b64data)
+            print(result)
+            # for im in result:
+            #     for key in im:
+            #         print(key)
             # print('SEARCH_BY_IMAGE Result', result)
             # print('Hits', result["hits"])
 
@@ -206,11 +209,11 @@ def upload():
             #     if count == 3:
             #         break
 
-        print(current_img_url)
+        # print(current_img_url)
         tags = generate_tags(current_img_url)
-        print(tags)
+        # print(tags)
         quotes = generate_quotes(tags)
-        print(quotes)
+        # print(quotes)
         return jsonify({
             "bucket_results": bucket_results,
             "quotes": quotes[:min(5, len(quotes))]
