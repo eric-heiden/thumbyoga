@@ -191,7 +191,7 @@ def upload():
         # search for all similar images
         bucket_results = []
         for i in range(5):
-            result = buck[i].inputs.search_by_image(base64bytes=b64data)
+            result = buck[(buckId+i+1)%5].inputs.search_by_image(base64bytes=b64data)
             print(result)
             # for im in result:
             #     for key in im:
