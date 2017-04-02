@@ -5,3 +5,4 @@ requests
 numpy
 python-resize-image
 opencv-python
+pymongo
