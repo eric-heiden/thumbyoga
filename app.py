@@ -1,12 +1,12 @@
 import os, requests, cv2, base64, json
-from PIL import Image
+from PIL import Image, ExifTags
 from resizeimage import resizeimage
 from dateutil import parser
 from datetime import datetime
 import numpy as np
 from pymongo import MongoClient
 
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
 from werkzeug import secure_filename
 from clarifai.rest import ClarifaiApp
 
@@ -145,6 +145,23 @@ def upload():
                 dt = datetime.now()
             # crop image
             img.thumbnail([1500, 1500], Image.ANTIALIAS) #resizeimage.resize_thumbnail(img, [1500, 1500])
+            
+            try:
+                for orientation in ExifTags.TAGS.keys():
+                    if ExifTags.TAGS[orientation] == 'Orientation':
+                        break
+                exif = dict(img._getexif().items())
+
+                if exif[orientation] == 3:
+                    img=img.rotate(180, expand=True)
+                elif exif[orientation] == 6:
+                    img=img.rotate(270, expand=True)
+                elif exif[orientation] == 8:
+                    img=img.rotate(90, expand=True)
+            except (AttributeError, KeyError, IndexError):
+                # cases: image don't have getexif
+                pass
+
             # img.save('uploads/temp.jpg')
             filename = "%s.%s" % (dt.strftime('%Y%m%d%H%M%S'), extension)
             target_filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -219,7 +236,7 @@ def upload():
             #     if count == 3:
             #         break
 
-        return json.dumps({ "bucket_results": bucket_results })
+        return jsonify({ "bucket_results": bucket_results })
 
         # Redirect the user to the uploaded_file route, which
         # will basicaly show on the browser the uploaded file
